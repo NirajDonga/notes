@@ -16,7 +16,7 @@ type Config struct {
 func Load() (Config, error) {
 
 	if err := godotenv.Load(); err != nil {
-		return Config{}, fmt.Errorf("Failed to load .env")
+		return Config{}, fmt.Errorf("Failed to load .env: %w", err)
 	}
 
 	mongoURI, err := exctractEnv("MONGODB_URI")

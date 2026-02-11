@@ -7,12 +7,12 @@ import (
 )
 
 type Note struct {
-	ID        primitive.ObjectID `bson:"_id" 		json:"id"`
-	Title     string             `bson:"title" 		json:"title"`
-	Content   string             `bson:"content"	json:"content"`
-	Pinned    string             `bson:"pinnned"	json:"pinned"`
-	CreatedAt time.Time          `bson:"createdAt"	json:"createdAt"`
-	UpdatedAt time.Time          `bson:"updatedAt" 	json:"updatedAt"`
+	ID        primitive.ObjectID `bson:"_id" json:"id"`
+	Title     string             `bson:"title" json:"title"`
+	Content   string             `bson:"content" json:"content"`
+	Pinned    string             `bson:"pinnned" json:"pinned"`
+	CreatedAt time.Time          `bson:"createdAt" json:"createdAt"`
+	UpdatedAt time.Time          `bson:"updatedAt" json:"updatedAt"`
 }
 
 type CreateNoteRequest struct {

@@ -19,11 +19,11 @@ func Connect(cfg config.Config) (*mongo.Client, *mongo.Database, error) {
 	client, err := mongo.Connect(ctx, clientOptions)
 
 	if err != nil {
-		return nil, nil, fmt.Errorf("Mongo connection failed")
+		return nil, nil, fmt.Errorf("Mongo connection failed: %w", err)
 	}
 
 	if err := client.Ping(ctx, nil); err != nil {
-		return nil, nil, fmt.Errorf("Mongo ping failed")
+		return nil, nil, fmt.Errorf("Mongo ping failed: %w", err)
 	}
 
 	database := client.Database(cfg.MongoDbName)
