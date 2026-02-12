@@ -32,6 +32,7 @@ func (h *Handler) CreateNode(c *gin.Context) {
 		ID:        primitive.NewObjectID(),
 		Title:     req.Title,
 		Content:   req.Content,
+		Pinned:    req.Pinned,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
