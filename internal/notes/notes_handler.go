@@ -18,7 +18,7 @@ func NewHandler(repo *Repo) *Handler {
 	return &Handler{repo: repo}
 }
 
-func (h *Handler) CreateNode(c *gin.Context) {
+func (h *Handler) CreateNote(c *gin.Context) {
 	var req CreateNoteRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -85,6 +85,66 @@ func (h *Handler) GetNoteById(c *gin.Context) {
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to fetch note",
+		})
+	}
+	c.JSON(http.StatusOK, note)
+}
+
+func (h *Handler) UpdateNodeByID(c *gin.Context) {
+	idStr := c.Param("id")
+
+	objID, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid ID",
+		})
+		return
+	}
+
+	var req UpdateNoteRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid JSON Formate",
+		})
+		return
+	}
+
+	updated, err := h.repo.updateByID(c.Request.Context(), objID, req)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Note not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to fetch note",
+		})
+	}
+	c.JSON(http.StatusOK, updated)
+}
+
+func (h *Handler) DeleteNodeByID(c *gin.Context) {
+	idStr := c.Param("id")
+
+	objID, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid ID",
+		})
+		return
+	}
+
+	note, err := h.repo.deleteByID(c.Request.Context(), objID)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Note not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to delete note",
 		})
 	}
 	c.JSON(http.StatusOK, note)

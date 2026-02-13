@@ -11,9 +11,11 @@ func RegisterRoutes(r *gin.Engine, db *mongo.Database) {
 
 	notesGroup := r.Group("/notes")
 	{
-		notesGroup.POST("", h.CreateNode)
+		notesGroup.POST("", h.CreateNote)
 		notesGroup.GET("", h.ListNotes)
-		notesGroup.POST("/:id", h.GetNoteById)
+		notesGroup.GET("/:id", h.GetNoteById)
+		notesGroup.PUT("/:id", h.UpdateNodeByID)
+		notesGroup.DELETE("/:id", h.DeleteNodeByID)
 	}
 
 }

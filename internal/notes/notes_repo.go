@@ -75,14 +75,17 @@ func (r *Repo) updateByID(ctx context.Context, noteId primitive.ObjectID, req Up
 
 	filter := bson.M{"_id": noteId}
 
-	update := bson.M{
-		"$set": bson.M{
-			"title":     req.Title,
-			"content":   req.Content,
-			"pinned":    req.Pinned,
-			"updatedAt": time.Now().UTC(),
-		},
+	fields := bson.M{"updatedAt": time.Now().UTC()}
+	if req.Title != nil {
+		fields["title"] = *req.Title
 	}
+	if req.Content != nil {
+		fields["content"] = *req.Content
+	}
+	if req.Pinned != nil {
+		fields["pinned"] = *req.Pinned
+	}
+	update := bson.M{"$set": fields}
 
 	after := options.After
 	opts := options.FindOneAndUpdateOptions{
@@ -95,5 +98,22 @@ func (r *Repo) updateByID(ctx context.Context, noteId primitive.ObjectID, req Up
 		return Note{}, fmt.Errorf("Update note failed: %w", err)
 	}
 	return updated, nil
+
+}
+
+func (r *Repo) deleteByID(ctx context.Context, noteId primitive.ObjectID) (Note, error) {
+	childCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	filter := bson.M{"_id": noteId}
+
+	opts := options.FindOneAndDeleteOptions{}
+
+	var deleted Note
+	err := r.coll.FindOneAndDelete(childCtx, filter, &opts).Decode(&deleted)
+	if err != nil {
+		return Note{}, fmt.Errorf("Update note failed: %w", err)
+	}
+	return deleted, nil
 
 }
