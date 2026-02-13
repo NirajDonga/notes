@@ -12,10 +12,16 @@ type Note struct {
 	Content   string             `bson:"content" json:"content"`
 	Pinned    bool               `bson:"pinnned" json:"pinned"`
 	CreatedAt time.Time          `bson:"createdAt" json:"createdAt"`
-	UpdatedAt time.Time          `bson:"updatedAt" json:"updatedAt"` 
+	UpdatedAt time.Time          `bson:"updatedAt" json:"updatedAt"`
 }
 
 type CreateNoteRequest struct {
+	Title   string `json:"title" binding:"required"`
+	Content string `json:"content" binding:"required"`
+	Pinned  bool   `json:"pinned"`
+}
+
+type UpdateNoteRequest struct {
 	Title   string `json:"title" binding:"required"`
 	Content string `json:"content" binding:"required"`
 	Pinned  bool   `json:"pinned"`

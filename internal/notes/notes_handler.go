@@ -1,11 +1,13 @@
 package notes
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Handler struct {
@@ -46,5 +48,44 @@ func (h *Handler) CreateNode(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, created)
+}
 
+func (h *Handler) ListNotes(c *gin.Context) {
+	notes, err := h.repo.List(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to fetch all notes",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"notes": notes,
+	})
+}
+
+func (h *Handler) GetNoteById(c *gin.Context) {
+	idStr := c.Param("id")
+
+	objID, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid ID",
+		})
+		return
+	}
+
+	note, err := h.repo.GetByID(c.Request.Context(), objID)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Note not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to fetch note",
+		})
+	}
+	c.JSON(http.StatusOK, note)
 }
